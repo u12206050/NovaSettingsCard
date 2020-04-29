@@ -1,6 +1,6 @@
 <?php
 
-namespace EricLagarda\SettingsCard;
+namespace Day4\SettingsCard;
 
 use Laravel\Nova\Nova;
 use Laravel\Nova\Events\ServingNova;

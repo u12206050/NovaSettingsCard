@@ -2,7 +2,7 @@
 # Nova Settings Card
 
 
-Nova card to add options to your website. To store data [akaunting/setting](https://github.com/akaunting/setting) is used. 
+Nova card to add options to your website. To store data [akaunting/setting](https://github.com/akaunting/setting) is used.
 
 You can attach the card to any [Nova Dashboard](https://nova.laravel.com/docs/2.0/customization/dashboards.html#default-dashboard). Can be used in multiple dashboard or in any resource.
 
@@ -46,7 +46,7 @@ KeyValue::make('Meta')->resolveUsing(function ($value) {
 
 
 	```php
-	use EricLagarda\SettingsCard\SettingsCard;
+	use Day4\SettingsCard\SettingsCard;
 
 
 	/**

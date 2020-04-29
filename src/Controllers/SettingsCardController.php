@@ -1,6 +1,6 @@
 <?php
 
-namespace EricLagarda\SettingsCard\Controllers;
+namespace Day4\SettingsCard\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;

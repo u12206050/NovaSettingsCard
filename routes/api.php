@@ -15,4 +15,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::post('/save-settings', '\EricLagarda\SettingsCard\Controllers\SettingsCardController@saveSettings')->name('settings-card.save');
+Route::post('/save-settings', '\Day4\SettingsCard\Controllers\SettingsCardController@saveSettings')->name('settings-card.save');

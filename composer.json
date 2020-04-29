@@ -1,5 +1,5 @@
 {
-    "name": "ericlagarda/nova-settings-card",
+    "name": "day4/nova-settings-card",
     "description": "Settings Card for Laravel Nova.",
     "keywords": [
         "laravel",
@@ -21,13 +21,13 @@
     },
     "autoload": {
         "psr-4": {
-            "EricLagarda\\SettingsCard\\": "src/"
+            "Day4\\SettingsCard\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "EricLagarda\\SettingsCard\\CardServiceProvider"
+                "Day4\\SettingsCard\\CardServiceProvider"
             ]
         }
     },

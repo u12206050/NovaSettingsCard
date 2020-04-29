@@ -3,69 +3,79 @@
 
         <h1 class="mb-3 text-90 font-normal text-2xl flex">{{ cardName }}</h1>
 
-        <card >
+        <card v-if="theTab">
             <div class="tabs-wrap border-b-2 border-40 w-full">
                 <div class="tabs flex flex-row overflow-x-auto">
                     <button
                         class="py-5 px-8 border-b-2 focus:outline-none tab"
-                        :class="[activeTab == tab.key ? 'text-grey-black font-bold border-primary': 'text-grey font-semibold border-40']"
+                        :class="[theTab.key == tab.key ? 'text-grey-black font-bold border-primary': 'text-grey font-semibold border-40']"
                         v-for="(tab, key) in card.fields"
                         :key="key"
-                        @click="handleTabClick(tab, $event)">
+                        @click="selectTab(tab)">
                         {{ tab.name }}
                     </button>
                 </div>
             </div>
 
+            <div
+                v-if="theTab"
+                :ref="theTab.key"
+                :label="theTab.name"
+                :key="'related-tabs-fields' + index"
+                >
 
-            <template v-for="(tab, index) in card.fields">
-                <div
-                    :ref="tab.key"
-                    v-if="tab.key == activeTab"
-                    :label="tab.name"
-                    :key="'related-tabs-fields' + index"
-                  >
+                <div>
+                    <form autocomplete="off" v-on:submit.prevent="saveSettings">
+                        <template v-for="(field, i) in theTab.fields">
+                            <component
+                                :key="i"
+                                :is="'form-' + field.component"
+                                :errors="errorData"
+                                :resource-name="resource"
+                                :field="field"
+                            />
+                        </template>
 
-                    <div v-if="tab.init">
-                        <form autocomplete="off" v-on:submit.prevent="saveSettings">
-                            <template v-for="field in tab.fields">
-                                <component
-                                  :is="'form-' + field.component"
-                                  :errors="errorData"
-                                  :resource-name="resource"
-                                  :field="field"
-                                />
-                            </template>
+                        <div class="bg-30 flex px-8 py-4">
 
-                            <div class="bg-30 flex px-8 py-4">
+                            <button class="ml-auto btn btn-default btn-primary inline-flex items-center relative">
+                                <span :class="{'invisible': working}">
+                                    {{ __('Save settings') }}
+                                </span>
 
-                                <button class="ml-auto btn btn-default btn-primary inline-flex items-center relative">
-                                    <span :class="{'invisible': working}">
-                                        {{ __('Save settings') }}
-                                    </span>
-
-                                    <span
-                                        v-if="working"
-                                        class="absolute"
-                                        style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
-                                    >
-                                        <loader class="text-white" width="32" />
-                                    </span>
-                                </button>
-
-                            </div>
-                        </form>
-                    </div>
+                                <span
+                                    v-if="working"
+                                    class="absolute"
+                                    style="top: 50%; left: 50%; transform: translate(-50%, -50%)"
+                                >
+                                    <loader class="text-white" width="32" />
+                                </span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </template>
+            </div>
         </card>
     </div>
-
-    
 </template>
 
 <script>
 import { Errors, HandlesValidationErrors } from 'laravel-nova';
+
+class JsonForm {
+    constructor() {
+        this.json = {}
+    }
+
+    append(k,v) {
+        this.json[k] = v
+    }
+
+    toString() {
+        return JSON.stringify(this.json)
+    }
+}
+
 export default {
     mixins: [HandlesValidationErrors],
 
@@ -80,17 +90,17 @@ export default {
     ],
 
     data: () => ({
-        activeTab: '',
         working: false,
         resource: 'settings',
         errorData: [],
+        theTab: null,
+        dirty: false
     }),
 
     mounted() {
         this.errorData = this.errors;
 
-        this.activeTab = this.card.fields[0].key
-        this.card.fields[0].init = true;
+        this.switchTab(this.card.fields[0])
     },
 
     computed: {
@@ -104,9 +114,47 @@ export default {
     },
 
     methods: {
-        handleTabClick(tab, event) {
-            tab.init = true;
-            this.activeTab = tab.key;
+        selectTab(tab) {
+            const { theTab, dirty, switchTab } = this
+            if (!theTab || tab.key !== theTab.key) {
+                if (dirty) {
+                    const newJson = new JsonForm()
+                    _.each(theTab.fields, f => {
+                        f.fill(newJson)
+                    })
+                    const testJson = newJson.toString()
+                    if (testJson !== dirty) {
+
+                        return this.$toasted.show('There are unsaved changes, are you sure you want to switch tabs?', {
+                            type: 'info',
+                            action : [{
+                                text : 'Cancel',
+                                onClick(e, toastObject) {
+                                    toastObject.goAway(0);
+                                }
+                            }, {
+                                text : 'Yes switch!',
+                                onClick(e, toastObject) {
+                                    toastObject.goAway(0);
+                                    switchTab(tab)
+                                }
+                            }]
+                        })
+                    }
+                }
+
+                this.switchTab(tab)
+            }
+        },
+
+        switchTab(tab) {
+            this.theTab = tab;
+
+            this.$nextTick(() => {
+                const json = new JsonForm()
+                this.theTab.fields.forEach(f => f.fill(json))
+                this.dirty = json.toString()
+            })
         },
 
         saveSettings() {
@@ -115,11 +163,18 @@ export default {
             Nova.request()
                 .post('/nova-vendor/settings-card/save-settings', data)
                 .then(response => {
-                    this.$toasted.show(this.__('Settings saved! - Reloading page.'), { type: 'success' });
+                    this.dirty = false
+                    this.$toasted.show(this.__('Settings saved!'), {
+                        type: 'success',
+                        action : [{
+                            text : 'Reload Page',
+                            onClick(e, toastObject) {
+                                toastObject.goAway(0);
+                                location.reload()
+                            }
+                        }]
+                    });
                     this.working = false
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
                 })
                 .catch(error => {
                     this.working = false
@@ -133,15 +188,10 @@ export default {
          * Gather the action FormData for the given action.
          */
         actionFormData() {
-            let dataForm = _.tap(new FormData(), formData => {
-                let tab = _.find(this.card.fields, ['key', this.activeTab]);
-                _.each(tab.fields, field => {
-                    field.fill(formData);
-                })
-            })
+            const dataForm = new FormData()
+            this.theTab.fields.forEach(f => f.fill(dataForm))
 
             dataForm.append('disks', JSON.stringify(this.card.disks));
-
 
             return dataForm;
         },

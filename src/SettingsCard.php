@@ -1,6 +1,6 @@
 <?php
 
-namespace EricLagarda\SettingsCard;
+namespace Day4\SettingsCard;
 
 use Illuminate\Support\Str;
 use Laravel\Nova\Card;
