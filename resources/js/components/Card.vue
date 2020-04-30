@@ -164,6 +164,7 @@ export default {
                 .post('/nova-vendor/settings-card/save-settings', data)
                 .then(response => {
                     this.dirty = false
+
                     this.$toasted.show(this.__('Settings saved!'), {
                         type: 'success',
                         action : [{
@@ -174,6 +175,15 @@ export default {
                             }
                         }]
                     });
+
+                    this.theTab.fields.forEach(f => {
+                        f.fill({
+                            append(k, v) {
+                                f.value = v
+                            }
+                        })
+                    })
+
                     this.working = false
                 })
                 .catch(error => {
