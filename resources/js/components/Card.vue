@@ -26,9 +26,9 @@
 
                 <div>
                     <form autocomplete="off" v-on:submit.prevent="saveSettings">
-                        <template v-for="(field, i) in theTab.fields">
+                        <template v-for="field in theTab.fields">
                             <component
-                                :key="i"
+                                :key="field.attribute"
                                 :is="'form-' + field.component"
                                 :errors="errorData"
                                 :resource-name="resource"
@@ -110,18 +110,19 @@ export default {
             }
 
             return this.__('Settings')
+        },
+        fields() {
+            return this.theTab && this.theTab.fields
         }
     },
 
     methods: {
         selectTab(tab) {
-            const { theTab, dirty, switchTab } = this
+            const { theTab, dirty, switchTab, fields } = this
             if (!theTab || tab.key !== theTab.key) {
                 if (dirty) {
                     const newJson = new JsonForm()
-                    _.each(theTab.fields, f => {
-                        f.fill(newJson)
-                    })
+                    fields.forEach(f => f.fill(newJson))
                     const testJson = newJson.toString()
                     if (testJson !== dirty) {
 
@@ -152,7 +153,7 @@ export default {
 
             this.$nextTick(() => {
                 const json = new JsonForm()
-                this.theTab.fields.forEach(f => f.fill(json))
+                this.fields.forEach(f => f.fill(json))
                 this.dirty = json.toString()
             })
         },
