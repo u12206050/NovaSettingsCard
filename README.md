@@ -98,6 +98,14 @@ Add repository to composer.json file:
 
 ## Localization
 
+If you want to save separate settings for each language then do the following:
+
+1. Add a `locale` column to the settings table either before migrating or manually afterward.
+
+2. Add a middleware or use an existing one where you can call `setting()->setExtraColumns(['locale' => $locale]);` where `$locale` is the current language you want to save for.
+
+3. Add `"locale"` to the `required_extra_columns` in the `settings.php` config file
+
 ```json
 "Settings": "Opciones",
 "Save settings": "Guardar opciones",

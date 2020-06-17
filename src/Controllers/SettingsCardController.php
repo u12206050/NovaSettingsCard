@@ -29,7 +29,7 @@ class SettingsCardController extends Controller
         $fields->each(function ($value, $key) use ($request) {
             $value = $this->getRequestValue($request, $key, $value);
 
-            if (!$value) {
+            if (!$value && $value !== false) {
                 setting()->forget($key);
             }
             if ($value) {
