@@ -18,12 +18,25 @@ KeyValue::make('Meta')->resolveUsing(function ($value) {
 
 ![cover](https://user-images.githubusercontent.com/74367/68877274-17e05f00-0706-11ea-9690-2485ba896c41.png)
 
+## Pre-install
+
+Add repository to composer.json file:
+
+```
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/u12206050/NovaSettingsCard.git",
+            "no-api": true
+        }
+		]
+```
 
 ## Instructions
 
 1. Install Package
 	```php
-	composer require ericlagarda/nova-settings-card
+	composer require day4/nova-settings-card
 	```
 
 2. Publish [akaunting/setting](https://github.com/akaunting/setting) config and migrations
