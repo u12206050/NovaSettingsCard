@@ -7,6 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class SettingsCardController extends Controller
 {
@@ -16,16 +17,18 @@ class SettingsCardController extends Controller
     protected $disks;
 
     /**
-     * @param Request $request
+     * @param NovaRequest $request
      */
-    public function saveSettings(Request $request)
+    public function saveSettings(NovaRequest $request)
     {
+
         $fields = collect($request->except('disks'))->reject(function ($value, $key) {
             return Str::contains($key, 'DraftId');
         });
 
         $this->disks = collect(json_decode($request->get('disks')));
 
+        $before = setting()->all();
         $fields->each(function ($value, $key) use ($request) {
             $value = $this->getRequestValue($request, $key, $value);
 
@@ -38,6 +41,15 @@ class SettingsCardController extends Controller
         });
 
         setting()->save();
+
+        $cards = \Laravel\Nova\Nova::availableCards($request);
+        foreach ($cards as $card) {
+            if (get_class($card) == \Day4\SettingsCard\SettingsCard::class) {
+                if (is_callable($card->onSave)) {
+                    call_user_func($card->onSave, $before, setting()->all());
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,

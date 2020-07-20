@@ -19,6 +19,8 @@ class SettingsCard extends Card
      */
     protected $disks = [];
 
+    public $onSave = null;
+
     /**
      * Set the card fields
      *
@@ -113,5 +115,12 @@ class SettingsCard extends Card
         }
 
         return $tabs;
+    }
+
+    public function onSave($onSave)
+    {
+        $this->onSave = $onSave;
+
+        return $this;
     }
 }

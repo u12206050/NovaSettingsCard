@@ -56,6 +56,7 @@ Add repository to composer.json file:
 
 	* **fields** -> Tabbed nova fields
 	* **name** -> Card name
+	* **onSave($before, $after)** -> Callback function on save
 
 
 	```php
