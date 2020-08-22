@@ -1,5 +1,5 @@
 <template>
-    <div class="">
+    <div class="nova-settings-card">
 
         <h1 class="mb-3 text-90 font-normal text-2xl flex">{{ cardName }}</h1>
 
@@ -210,6 +210,7 @@ export default {
 }
 </script>
 <style lang="scss">
+.nova-settings-card {
   .tabs::-webkit-scrollbar {
     height: 8px;
     border-radius: 4px;
@@ -223,9 +224,6 @@ export default {
   }
   .card {
     box-shadow: none;
-  }
-  h1 {
-    display: none;
   }
   .tab {
     padding-top: 1.25rem;
@@ -260,4 +258,5 @@ export default {
       margin-left: 1.5rem;
     }
   }
+}
 </style>
